@@ -27,7 +27,14 @@ func Open(path string) (*Store, error) {
 		return nil, err
 	}
 	s := &Store{db: db}
-	err = db.Update(func(tx *bolt.Tx) error { _, err := tx.CreateBucketIfNotExists(bucket); return err })
+	err = db.Update(func(tx *bolt.Tx) error {
+		for _, name := range [][]byte{bucket, itemsBucket, activityBucket, operationsBucket} {
+			if _, err := tx.CreateBucketIfNotExists(name); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 	if err != nil {
 		db.Close()
 		return nil, err
@@ -38,6 +45,10 @@ func Open(path string) (*Store, error) {
 func (s *Store) Close() error { s.mu.Lock(); defer s.mu.Unlock(); return s.db.Close() }
 
 func (s *Store) transaction(write bool, fn func(*spaces.State) error) error {
+	return s.timelineTransaction(write, true, func(state *spaces.State, _ *TimelineTx) error { return fn(state) })
+}
+
+func (s *Store) timelineTransaction(write, saveMetadata bool, fn func(*spaces.State, *TimelineTx) error) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	work := func(tx *bolt.Tx) error {
@@ -50,10 +61,10 @@ func (s *Store) transaction(write bool, fn func(*spaces.State) error) error {
 				return fmt.Errorf("unsupported database schema %d", state.Version)
 			}
 		}
-		if err := fn(state); err != nil {
+		if err := fn(state, &TimelineTx{tx: tx}); err != nil {
 			return err
 		}
-		if !write {
+		if !write || !saveMetadata {
 			return nil
 		}
 		raw, err := json.Marshal(state)

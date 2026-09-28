@@ -18,6 +18,7 @@ import (
 	"github.com/GODGIRII/timeline/internal/auth"
 	"github.com/GODGIRII/timeline/internal/spaces"
 	"github.com/GODGIRII/timeline/internal/storage"
+	"github.com/GODGIRII/timeline/internal/timeline"
 	"github.com/gorilla/websocket"
 )
 
@@ -26,7 +27,8 @@ const sessionTTL = 7 * 24 * time.Hour
 
 type Config struct {
 	Origin          string
-	InsecureCookies bool // Explicit localhost-only development mode.
+	InsecureCookies bool   // Explicit localhost-only development mode.
+	WebDir          string // Optional Vite build directory; no source files are served.
 }
 
 type limitEntry struct {
@@ -72,7 +74,7 @@ func New(store *storage.Store, config Config) (*Server, error) {
 		return nil, err
 	}
 	s := &Server{store: store, config: config, mux: http.NewServeMux(), dummyHash: dummy, limits: map[string]limitEntry{}, authSlots: make(chan struct{}, 4), live: map[*websocket.Conn]struct{}{}}
-	s.mux.HandleFunc("GET /{$}", home)
+	s.mux.HandleFunc("GET /", s.frontend)
 	s.mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { respond(w, 200, map[string]string{"status": "ok"}) })
 	s.mux.HandleFunc("POST /api/auth/register", s.register)
 	s.mux.HandleFunc("POST /api/auth/login", s.login)
@@ -88,6 +90,12 @@ func New(store *storage.Store, config Config) (*Server, error) {
 	s.mux.HandleFunc("POST /api/spaces/{space}/rotate-key", s.rotateKey)
 	s.mux.HandleFunc("PUT /api/spaces/{space}/document", s.writeDocument)
 	s.mux.HandleFunc("GET /api/spaces/{space}/live", s.websocket)
+	s.mux.HandleFunc("GET /api/spaces/{space}/items", s.listItems)
+	s.mux.HandleFunc("POST /api/spaces/{space}/items", s.createItem)
+	s.mux.HandleFunc("GET /api/spaces/{space}/items/{item}", s.getItem)
+	s.mux.HandleFunc("PUT /api/spaces/{space}/items/{item}", s.updateItem)
+	s.mux.HandleFunc("DELETE /api/spaces/{space}/items/{item}", s.deleteItem)
+	s.mux.HandleFunc("GET /api/spaces/{space}/activities", s.listActivities)
 	return s, nil
 }
 
@@ -129,6 +137,15 @@ func respond(w http.ResponseWriter, status int, value any) {
 }
 
 func report(w http.ResponseWriter, err error) {
+	var validation *timeline.ValidationError
+	switch {
+	case errors.As(err, &validation):
+		err = fail(400, validation.Error())
+	case errors.Is(err, timeline.ErrNotFound):
+		err = fail(404, err.Error())
+	case errors.Is(err, timeline.ErrConflict), errors.Is(err, timeline.ErrOperation):
+		err = fail(409, err.Error())
+	}
 	var api *apiError
 	if errors.As(err, &api) {
 		respond(w, api.status, map[string]string{"error": api.message})

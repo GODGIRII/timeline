@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/GODGIRII/timeline/internal/spaces"
+	"github.com/GODGIRII/timeline/internal/storage"
 	"github.com/gorilla/websocket"
 )
 
@@ -62,28 +63,44 @@ func (s *Server) websocket(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	var revision uint64
+	var sequence uint64
 	first := true
 	lastRole := ""
 	deliver := func() error {
-		return s.access(r, false, func(state *spaces.State, a spaces.Account) error {
+		return s.store.ReadTimeline(func(state *spaces.State, tx *storage.TimelineTx) error {
+			a, err := identity(state, sessionID(r))
+			if err != nil {
+				return err
+			}
 			space, err := permitted(state, r.PathValue("space"), a.ID, "owner", "editor", "viewer")
 			if err != nil {
 				return err
 			}
-			_ = conn.SetWriteDeadline(time.Now().Add(2 * time.Second))
+			records := tx.Space(space.ID)
 			if first || lastRole != space.Members[a.ID] {
-				if err := conn.WriteJSON(map[string]any{"type": "snapshot", "space": publicSpace(space, a.ID)}); err != nil {
+				items, err := records.Items(storage.ItemFilter{})
+				if err != nil {
+					return err
+				}
+				activities, err := records.Activities(0, 50, true)
+				if err != nil {
+					return err
+				}
+				_ = conn.SetWriteDeadline(time.Now().Add(2 * time.Second))
+				if err := conn.WriteJSON(map[string]any{"type": "snapshot", "space": publicSpace(space, a.ID), "items": items.Items, "sequence": items.Sequence, "activities": activities.Activities}); err != nil {
 					return err
 				}
 				first = false
 				lastRole = space.Members[a.ID]
 				revision = space.Revision
+				sequence = items.Sequence
 				return nil
 			}
 			// Events and the snapshot revision share the same durable transaction.
 			// Any commit after a snapshot is found on the next poll, without a
 			// subscription-registration gap or dependence on in-memory broadcasts.
 			end := space.Revision
+			_ = conn.SetWriteDeadline(time.Now().Add(2 * time.Second))
 			if end > revision+32 {
 				end = revision + 32
 			}
@@ -93,6 +110,16 @@ func (s *Server) websocket(w http.ResponseWriter, r *http.Request) {
 					return err
 				}
 				revision = event.Revision
+			}
+			activities, err := records.Activities(sequence, 32, false)
+			if err != nil {
+				return err
+			}
+			for _, activity := range activities.Activities {
+				if err := conn.WriteJSON(map[string]any{"type": "activity", "activity": activity}); err != nil {
+					return err
+				}
+				sequence = activity.Sequence
 			}
 			return nil
 		})
