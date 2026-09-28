@@ -1,6 +1,7 @@
 # Connection and access layer
 
-Status: proposed design, before implementation.
+Status: first backend implementation complete. See [API usage](api.md) for exact
+behavior and limits. Task-specific logic and the browser UI remain future work.
 
 ## Purpose and scope
 
@@ -36,10 +37,10 @@ identifies a space. Membership connects an account to a space, giving the same
 person a stable identity across devices. Each device has its own revocable
 session. A space has no shared password.
 
-Proposed joining rule: a signed-in user enters the space key to request access.
+Implemented joining rule: a signed-in user enters the space key to request access.
 The owner approves the request and assigns editor or viewer access. Existing
 active members enter directly. Knowing the key alone does not grant access.
-Owner approval is a design proposal, not yet a user-selected requirement.
+Owner approval follows the design adopted for this implementation.
 
 ## Logical records
 
@@ -72,8 +73,9 @@ owner membership. Repeated pending requests from the same account are combined.
 A revoked member cannot rejoin without fresh owner approval. Changing the key
 does not revoke existing memberships; removing a member does.
 
-Account registration, login identifier choice, and account recovery still need
-to be designed. A space key must never confer ownership.
+Registration uses a unique username and personal password. Authenticated password
+changes revoke all sessions; forgotten-password recovery remains future work.
+A space key must never confer ownership.
 
 ## Join and connection flow
 
@@ -115,7 +117,7 @@ only within the authorized space. Each committed change carries an event ID,
 space ID, revision, and actor ID. The server derives actor identity from the
 session, never from an untrusted client field.
 
-Clients submit a unique operation ID with each write. Retrying the same operation
+Clients submit a unique operation ID with each document write. Retrying the same operation
 must return its original result rather than apply it twice. The operation record
 and the change must commit together. Writes also identify the revision they are
 based on; stale writes return a conflict so one participant cannot silently
@@ -141,8 +143,8 @@ membership.
 
 Membership removal revokes that account's access to the space across devices,
 without removing access to other spaces. Password reset should revoke existing
-account sessions. Exact session expiration and recovery policies remain to be
-decided.
+account sessions. Sessions expire after seven days. Forgotten-password recovery
+remains to be designed.
 
 ## Acceptance scenarios for implementation
 
@@ -160,9 +162,9 @@ decided.
 - Revoked access stops HTTP writes and live delivery.
 - Restarting the server preserves spaces, memberships, and committed state.
 
-## Implementation structure when coding begins
+## Implementation structure
 
-Add directories only as their first files are implemented:
+Directories are added as their first files are implemented:
 
 ```text
 cmd/server/             Go server entry point
@@ -170,9 +172,8 @@ internal/auth/          Credentials and sessions
 internal/spaces/        Spaces, membership, and permission rules
 internal/transport/     HTTP endpoints and WebSocket connections
 internal/storage/       Persistence implementation
-web/                    Browser application
 ```
 
-Keep Go unit tests beside the packages they verify. Add integration tests when
-the server and storage exist. No placeholder packages or dependencies are needed
-at the design stage.
+Go tests live beside their packages. Transport integration tests exercise HTTP,
+WebSockets, permissions, concurrent writes, and restarts. Add `web/` when browser
+implementation begins.
