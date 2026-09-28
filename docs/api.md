@@ -1,5 +1,9 @@
 # Network layer API
 
+This document covers accounts, access, and the original transport protocol.
+For structured tasks/events, use the [MVP API](mvp.md). The original generic
+document endpoints remain compatible and independent of structured items.
+
 ## Start and configure
 
 ```sh
@@ -13,6 +17,7 @@ go run ./cmd/server -dev -origin http://localhost:8080
 | `-origin` | `https://localhost:8080` | Exact browser origin, without trailing slash |
 | `-dev` | `false` | Allow HTTP cookies for a localhost origin |
 | `-tls-cert`, `-tls-key` | empty | Certificate and key for direct HTTPS |
+| `-web-dir` | `web/dist` | Built frontend directory; missing build shows setup instructions |
 
 Outside development, serve HTTPS directly or use an HTTPS reverse proxy that
 preserves Origin and supports WebSocket upgrades. Bind the upstream to a private
@@ -54,7 +59,7 @@ errors have `{"error":"message"}`. IDs are opaque strings issued by the server.
 
 | Method and path | Input / behavior |
 | --- | --- |
-| `GET /` | HTML backend landing page; no authentication |
+| `GET /` | React app when built; setup instructions otherwise |
 | `GET /healthz` | Liveness response; no authentication |
 | `POST /api/auth/register` | `username`, `display_name`, `password`; creates account and session, returns account, HTTP 201 |
 | `POST /api/auth/login` | `username`, `password`; returns account and new device session |
@@ -70,6 +75,12 @@ errors have `{"error":"message"}`. IDs are opaque strings issued by the server.
 | `POST /api/spaces/{space}/rotate-key` | Owner-only `{}`; returns new key, preserves memberships and pending requests |
 | `PUT /api/spaces/{space}/document` | Versioned document write, described below |
 | `GET /api/spaces/{space}/live` | Authenticated WebSocket upgrade |
+| `GET /api/spaces/{space}/items` | Paginated tasks/events; optional type, priority and status filters |
+| `POST /api/spaces/{space}/items` | Create task/event with an operation ID |
+| `GET /api/spaces/{space}/items/{item}` | Read one active item |
+| `PUT /api/spaces/{space}/items/{item}` | Replace editable fields with operation ID and base version |
+| `DELETE /api/spaces/{space}/items/{item}` | Remove item using operation ID and base version |
+| `GET /api/spaces/{space}/activities` | Paginated item activity history |
 
 Each named input field belongs in a JSON object. Role assignment requires an
 existing member or pending request. Owner access cannot be assigned, removed,
@@ -111,8 +122,9 @@ to `/api/spaces/{space}/members/{member-account-id}` to approve access.
 
 ## Document writes and retries
 
-The initial document is `{}` at revision 0. This transport-level object is a
-placeholder for the future task model; it does not validate task semantics.
+The initial legacy document is `{}` at revision 0. This transport-level object is
+retained for compatibility and is separate from the structured task/event API.
+New clients should use items. Legacy document writes cannot alter structured items.
 
 ```json
 {
@@ -149,20 +161,24 @@ const socket = new WebSocket(url);
 socket.onmessage = ({ data }) => console.log(JSON.parse(data));
 ```
 
-The first message is a fresh snapshot:
+The first message is a fresh snapshot. The legacy `space` object remains; the
+message also includes `items`, `sequence`, and recent `activities` as described
+in the [MVP live protocol](mvp.md#live-notifications). The following abbreviated
+example shows only the original fields:
 
 ```json
 {"type":"snapshot","space":{"id":"...","name":"Our timeline","role":"editor","revision":0,"document":{}}}
 ```
 
-Subsequent changes are ordered by revision:
+Legacy document changes are ordered by revision:
 
 ```json
 {"type":"change","event":{"id":"...","space_id":"...","actor_id":"...","revision":1,"document":{"title":"Team activities"},"created_at":"..."}}
 ```
 
 The server polls durable events every 250 ms, delivering at most 32 events per
-connection per poll. Session and membership checks precede every delivery and
+stream per connection per poll. Structured item notifications use `type: activity`
+and a separate space sequence. Session and membership checks precede every delivery and
 are serialized with access changes. Revocation and logout close affected sockets
 on their next poll; no later state is sent after revocation commits. Data sent
 earlier may already be buffered by the network. Role changes send a replacement
@@ -182,16 +198,17 @@ Browsers answer protocol pings automatically.
 
 ## Scope and limits
 
-No frontend, task scheduling rules, account recovery, ownership transfer, or
-offline merging is included yet. Admin changes do not have timeline audit events.
-Document events contain actor and timestamp, but there is no history endpoint.
+The React frontend provides live notifications, automatic reconnect, task and
+event editing, calendar/list views, and admin controls. Reminders, recurrence,
+account recovery, ownership transfer, and offline merging are not included yet.
+Admin changes do not yet have activity records.
 
-Storage uses bbolt transactions with a single versioned JSON state record.
-Whole-state reads/writes, unbounded event history, and serialized socket delivery
-are intended for small deployments. A slow socket can hold the storage lock
-until its write deadline. Before scaling, split records/indexes and event
-retention into dedicated structures and decouple delivery while preserving access
-checks. Multiple server instances are not supported.
+Storage uses bbolt transactions. Structured items, activities, and operations
+are separate records grouped by space; item writes do not rewrite metadata or
+other items. Accounts, memberships, and legacy documents still use the original
+JSON state record. Unbounded history, full live snapshots, and serialized socket
+delivery remain limits for large deployments. A slow socket can hold the storage
+lock until its write deadline. Multiple server instances are not supported.
 
 Library references: [bbolt transactions](https://pkg.go.dev/go.etcd.io/bbolt),
 [Gorilla WebSocket](https://pkg.go.dev/github.com/gorilla/websocket), and

@@ -1,7 +1,8 @@
 # Connection and access layer
 
-Status: first backend implementation complete. See [API usage](api.md) for exact
-behavior and limits. Task-specific logic and the browser UI remain future work.
+Status: the network layer and task/event backend are implemented. See
+[API usage](api.md) and [MVP rules](mvp.md) for behavior and limits.
+The [React frontend](frontend.md) now provides the interactive browser UI.
 
 ## Purpose and scope
 

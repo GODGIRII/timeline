@@ -23,6 +23,7 @@ func main() {
 	dev := flag.Bool("dev", false, "allow insecure cookies for HTTP localhost only")
 	cert := flag.String("tls-cert", "", "TLS certificate; omit only behind an HTTPS reverse proxy or in dev mode")
 	key := flag.String("tls-key", "", "TLS private key")
+	webDir := flag.String("web-dir", "web/dist", "built frontend directory")
 	flag.Parse()
 	if (*cert == "") != (*key == "") {
 		log.Fatal("tls-cert and tls-key must be supplied together")
@@ -35,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer store.Close()
-	app, err := transport.New(store, transport.Config{Origin: *origin, InsecureCookies: *dev})
+	app, err := transport.New(store, transport.Config{Origin: *origin, InsecureCookies: *dev, WebDir: *webDir})
 	if err != nil {
 		log.Fatal(err)
 	}
