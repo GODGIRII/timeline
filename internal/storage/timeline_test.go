@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/GODGIRII/timeline/internal/spaces"
-	"github.com/GODGIRII/timeline/internal/timeline"
+	"github.com/GODGIRII/sequence/internal/spaces"
+	"github.com/GODGIRII/sequence/internal/timeline"
 	bolt "go.etcd.io/bbolt"
 )
 
