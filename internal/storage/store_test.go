@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/GODGIRII/timeline/internal/spaces"
+	"github.com/GODGIRII/sequence/internal/spaces"
 )
 
 func TestRollbackAndPrivateFile(t *testing.T) {
