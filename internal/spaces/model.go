@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/GODGIRII/timeline/internal/auth"
+	"github.com/GODGIRII/sequence/internal/auth"
 )
 
 type Account struct {
