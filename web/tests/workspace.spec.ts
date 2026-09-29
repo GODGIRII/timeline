@@ -26,7 +26,7 @@ async function createTask(page: Page, title: string) {
 
 test('create, filter, edit, conflict, calendar, removal, and responsive layout', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/'); await page.screenshot({ path: '/tmp/timeline-auth.png', fullPage: true });
+  await page.goto('/'); await page.screenshot({ path: '/tmp/sequence-auth.png', fullPage: true });
   await register(page, 'Alex'); await createSpace(page);
   await createTask(page, 'Shape the launch story');
   await page.getByRole('button', { name: 'Complete Shape the launch story', exact: true }).click();
@@ -42,7 +42,7 @@ test('create, filter, edit, conflict, calendar, removal, and responsive layout',
   await expect(page.getByTestId('item-card')).toHaveCount(5);
   await page.locator('.toast-stack').evaluate(el => el.querySelectorAll('button').forEach(button => button.click()));
   await expect(page.locator('.toast')).toHaveCount(0);
-  await page.screenshot({ path: '/tmp/timeline-desktop.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/sequence-desktop.png', fullPage: true });
   await page.getByLabel('Search items').fill('Shape'); await expect(page.getByTestId('item-card')).toHaveCount(1); await page.getByLabel('Search items').fill('');
   await page.getByLabel('Filter priority').selectOption('low'); await expect(page.getByTestId('item-card')).toHaveCount(2); await page.getByLabel('Filter priority').selectOption('all');
   await page.getByRole('heading', { name: 'Shape the launch story', exact: true }).click();
@@ -61,7 +61,7 @@ test('create, filter, edit, conflict, calendar, removal, and responsive layout',
   await page.getByRole('button', { name: 'List view', exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect.poll(() => page.locator('.sidebar').evaluate(el => el.getBoundingClientRect().right)).toBeLessThanOrEqual(0);
-  await page.screenshot({ path: '/tmp/timeline-mobile.png', fullPage: true });
+  await page.screenshot({ path: '/tmp/sequence-mobile.png', fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   await page.getByRole('button', { name: 'Open navigation' }).click();
   await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('button', { name: 'Activity', exact: true }).click();
