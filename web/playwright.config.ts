@@ -8,7 +8,7 @@ export default defineConfig({
   expect: { timeout: 15000 },
   use: { baseURL: 'http://localhost:4180', viewport: { width: 1440, height: 1000 }, trace: 'retain-on-failure' },
   webServer: {
-    command: `go run ./cmd/server -dev -addr 127.0.0.1:4180 -origin http://localhost:4180 -web-dir web/dist -db /tmp/timeline-ui-${process.pid}.db`,
+    command: `go run ./cmd/server -dev -addr 127.0.0.1:4180 -origin http://localhost:4180 -web-dir web/dist -db /tmp/sequence-ui-${process.pid}.db`,
     cwd: root, url: 'http://localhost:4180/healthz', reuseExistingServer: false,
     env: { GOCACHE: '/tmp/timeline-go-cache' },
   },
