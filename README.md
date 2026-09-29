@@ -1,7 +1,7 @@
-# Timeline
+# Sequence
 
-A collaborative web application for planning and tracking tasks and activities
-on shared timelines, accessible from multiple devices.
+Sequence is a collaborative web application for planning and tracking tasks and
+events, accessible from multiple devices.
 
 ## Current stage
 
@@ -29,7 +29,8 @@ npm run build --prefix web
 go run ./cmd/server -dev -origin http://localhost:8080
 ```
 
-The API listens on `127.0.0.1:8080` and stores data in `data/timeline.db`.
+The API listens on `127.0.0.1:8080` and keeps its database at `data/timeline.db`
+to preserve existing accounts and shared spaces.
 Open **http://localhost:8080/**, create an account, and create or join a space.
 Go serves the built frontend and API from the same origin. `GET /healthz` checks
 liveness. Deployments must use HTTPS, either with the TLS flags or a reverse proxy.
