@@ -1,4 +1,4 @@
-# Timeline web app
+# Sequence web app
 
 The frontend uses React, TypeScript, Vite, Tailwind CSS, and Lucide icons. It
 communicates with the existing API using Fetch and native WebSockets. Fonts use
@@ -27,8 +27,9 @@ from **Invite people**. The admin approves requests and chooses viewing/editing
 permissions. Open access controls poll for new requests every ten seconds;
 approved spaces appear in the second user's sidebar on the same interval.
 
-The default database is `data/timeline.db`. Use `-db data/ui-testing.db` for a
-separate test dataset. Production uses HTTPS and Secure cookies as before.
+The default database remains `data/timeline.db` to preserve existing accounts
+and spaces. Use `-db data/sequence-testing.db` for a separate test dataset.
+Production uses HTTPS and Secure cookies as before.
 
 ## Frontend development
 
@@ -123,7 +124,7 @@ under `/tmp`. They cover account creation, space creation, editing, completion,
 filters, calendar, conflicts, removal, responsive layout, membership changes,
 live collaboration between separate browser contexts, and lost-response retries.
 They do not touch the normal development database. Tests write visual previews
-to `/tmp/timeline-auth.png`, `/tmp/timeline-desktop.png`, and `/tmp/timeline-mobile.png`.
+to `/tmp/sequence-auth.png`, `/tmp/sequence-desktop.png`, and `/tmp/sequence-mobile.png`.
 
 Continue running `go test -race ./...` and `go vet ./...` for the backend. The
 frontend build checks TypeScript and produces a static deployment bundle.
