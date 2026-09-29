@@ -22,7 +22,7 @@ export default function App() {
     finally { setLoading(false); }
   }, []);
   useEffect(() => { load(); const expired = () => setAccount(null); window.addEventListener('session-expired', expired); return () => window.removeEventListener('session-expired', expired); }, [load]);
-  if (loading || error) return <main className="boot-screen"><span className="brand-icon"><Layers3 /></span><h1>timeline.</h1>{error ? <><p role="alert">{error}</p><button className="button primary" onClick={load}>Try again</button></> : <p className="pulse">Getting your plans together…</p>}</main>;
+  if (loading || error) return <main className="boot-screen"><span className="brand-icon"><Layers3 /></span><h1>sequence.</h1>{error ? <><p role="alert">{error}</p><button className="button primary" onClick={load}>Try again</button></> : <p className="pulse">Getting your plans together…</p>}</main>;
   return account ? <Workspace key={account.id} account={account} onLogout={() => setAccount(null)} /> : <Auth onLogin={setAccount} />;
 }
 
@@ -115,7 +115,7 @@ function Workspace({ account, onLogout }: { account: Account; onLogout: () => vo
   return <div className="app-shell">
     {mobileNav && <button className="nav-scrim" aria-label="Close navigation" onClick={() => setMobileNav(false)} />}
     <aside className={`sidebar ${mobileNav ? 'mobile-open' : ''}`}>
-      <a href="/" className="brand"><span className="brand-icon"><Layers3 size={22} /></span>timeline<span className="brand-dot">.</span></a>
+      <a href="/" className="brand"><span className="brand-icon"><Layers3 size={22} /></span>sequence<span className="brand-dot">.</span></a>
       <div className="space-select-wrap"><span className="space-symbol">{space?.name.slice(0, 1).toUpperCase() || 'Y'}</span><div><span className="eyebrow">YOUR SPACE</span><select aria-label="Current space" value={selected} onChange={e => { setSelected(e.target.value); setMobileNav(false); }}><option value="" disabled>{spacesReady ? 'Choose a space' : 'Loading…'}</option>{spaces.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div><ChevronDown size={14} /></div>
       <span className="nav-label">WORKSPACE</span>
       <nav aria-label="Main navigation"><button className={page === 'timeline' ? 'active' : ''} onClick={() => choosePage('timeline')}><LayoutList size={18} />Timeline<span className="nav-count">{open.length}</span></button><button className={page === 'calendar' ? 'active' : ''} onClick={() => choosePage('calendar')}><CalendarDays size={18} />Calendar</button><button className={page === 'activity' ? 'active' : ''} onClick={() => choosePage('activity')}><ActivityIcon size={18} />Activity{timeline.activities.length > 0 && <span className="nav-dot" />}</button></nav>
