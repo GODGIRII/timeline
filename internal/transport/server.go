@@ -15,10 +15,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/GODGIRII/timeline/internal/auth"
-	"github.com/GODGIRII/timeline/internal/spaces"
-	"github.com/GODGIRII/timeline/internal/storage"
-	"github.com/GODGIRII/timeline/internal/timeline"
+	"github.com/GODGIRII/sequence/internal/auth"
+	"github.com/GODGIRII/sequence/internal/spaces"
+	"github.com/GODGIRII/sequence/internal/storage"
+	"github.com/GODGIRII/sequence/internal/timeline"
 	"github.com/gorilla/websocket"
 )
 
