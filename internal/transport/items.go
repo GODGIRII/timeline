@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/GODGIRII/timeline/internal/spaces"
-	"github.com/GODGIRII/timeline/internal/storage"
-	"github.com/GODGIRII/timeline/internal/timeline"
+	"github.com/GODGIRII/sequence/internal/spaces"
+	"github.com/GODGIRII/sequence/internal/storage"
+	"github.com/GODGIRII/sequence/internal/timeline"
 )
 
 // Authorization and item access use one transaction, including retry lookup.
