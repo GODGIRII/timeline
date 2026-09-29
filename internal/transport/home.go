@@ -44,11 +44,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Timeline</title>
+  <title>Sequence</title>
 </head>
 <body>
   <main>
-    <h1>Timeline</h1>
+    <h1>Sequence</h1>
     <p>The backend is running.</p>
     <p>Accounts, shared tasks and events, deadlines, priorities, and live activity
     notifications are available through the API.
