@@ -13,9 +13,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/GODGIRII/timeline/internal/auth"
-	"github.com/GODGIRII/timeline/internal/spaces"
-	"github.com/GODGIRII/timeline/internal/storage"
+	"github.com/GODGIRII/sequence/internal/auth"
+	"github.com/GODGIRII/sequence/internal/spaces"
+	"github.com/GODGIRII/sequence/internal/storage"
 	"github.com/gorilla/websocket"
 )
 
