@@ -1,4 +1,4 @@
-module github.com/GODGIRII/timeline
+module github.com/GODGIRII/sequence
 
 go 1.24.0
 
