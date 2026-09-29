@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GODGIRII/timeline/internal/auth"
+	"github.com/GODGIRII/sequence/internal/auth"
 )
 
 var (
