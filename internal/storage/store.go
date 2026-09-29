@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/GODGIRII/timeline/internal/spaces"
+	"github.com/GODGIRII/sequence/internal/spaces"
 	bolt "go.etcd.io/bbolt"
 )
 
