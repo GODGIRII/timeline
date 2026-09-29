@@ -13,7 +13,7 @@ export function Auth({ onLogin }: { onLogin: (account: Account) => void }) {
     } catch (error) { setError(messageOf(error)); } finally { setBusy(false); }
   }
   return <main className="auth-page">
-    <section className="auth-story"><a href="/" className="brand"><span className="brand-icon"><Layers3 size={22} /></span>timeline<span className="brand-dot">.</span></a>
+    <section className="auth-story"><a href="/" className="brand"><span className="brand-icon"><Layers3 size={22} /></span>sequence<span className="brand-dot">.</span></a>
       <div className="auth-copy"><span className="eyebrow"><Sparkles size={15} /> A LITTLE CLARITY, EVERY DAY</span><h1>Good things<br />take a little<br /><em>planning.</em></h1><p>A calmer place for your tasks, your people,<br className="desktop-only" /> and everything coming next.</p>
         <div className="auth-preview" aria-hidden="true"><div className="preview-heading"><span>One shared view.</span><span className="live-label"><i /> Together</span></div><div className="preview-line"><span className="preview-check"><Check size={14} /></span><span>A plan everyone can follow</span><span className="priority high">High</span></div><div className="preview-line"><span className="preview-check"><Check size={14} /></span><span>Less chasing. More doing.</span><span className="priority medium">Medium</span></div><div className="preview-foot"><span className="avatar-stack"><i>A</i><i>M</i><i>J</i></span><span>Better, together.</span></div></div>
       </div><p className="auth-bottom">A little structure. A lot more possibility.</p>
