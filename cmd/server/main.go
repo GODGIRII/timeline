@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/GODGIRII/timeline/internal/storage"
-	"github.com/GODGIRII/timeline/internal/transport"
+	"github.com/GODGIRII/sequence/internal/storage"
+	"github.com/GODGIRII/sequence/internal/transport"
 )
 
 func main() {
@@ -44,7 +44,7 @@ func main() {
 	server := &http.Server{Addr: *addr, Handler: app, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 << 10}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	log.Printf("timeline listening on %s; browser origin %s", *addr, *origin)
+	log.Printf("sequence listening on %s; browser origin %s", *addr, *origin)
 	serveErr := make(chan error, 1)
 	go func() {
 		if *cert != "" {
