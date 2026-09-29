@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/GODGIRII/timeline/internal/storage"
+	"github.com/GODGIRII/sequence/internal/storage"
 )
 
 func TestFrontendRoutes(t *testing.T) {
@@ -16,7 +16,7 @@ func TestFrontendRoutes(t *testing.T) {
 	if err := os.Mkdir(filepath.Join(dir, "assets"), 0700); err != nil {
 		t.Fatal(err)
 	}
-	for name, body := range map[string]string{"index.html": "<!doctype html><title>Timeline app</title>", "assets/app.js": "window.ready=true", "private.txt": "not public"} {
+	for name, body := range map[string]string{"index.html": "<!doctype html><title>Sequence app</title>", "assets/app.js": "window.ready=true", "private.txt": "not public"} {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0600); err != nil {
 			t.Fatal(err)
 		}
@@ -35,7 +35,7 @@ func TestFrontendRoutes(t *testing.T) {
 		path     string
 		status   int
 		contains string
-	}{{"/", 200, "Timeline app"}, {"/assets/app.js", 200, "window.ready"}, {"/assets/", 404, ""}, {"/private.txt", 404, ""}, {"/api/missing", 404, ""}, {"/healthz", 200, "ok"}} {
+	}{{"/", 200, "Sequence app"}, {"/assets/app.js", 200, "window.ready"}, {"/assets/", 404, ""}, {"/private.txt", 404, ""}, {"/api/missing", 404, ""}, {"/healthz", 200, "ok"}} {
 		r := httptest.NewRequest(http.MethodGet, tc.path, nil)
 		w := httptest.NewRecorder()
 		s.ServeHTTP(w, r)
