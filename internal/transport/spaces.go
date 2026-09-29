@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GODGIRII/timeline/internal/auth"
-	"github.com/GODGIRII/timeline/internal/spaces"
+	"github.com/GODGIRII/sequence/internal/auth"
+	"github.com/GODGIRII/sequence/internal/spaces"
 )
 
 func (s *Server) listSpaces(w http.ResponseWriter, r *http.Request) {
