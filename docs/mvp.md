@@ -1,4 +1,4 @@
-# Tasks, events, and live activity: backend MVP
+# Sequence MVP: tasks, events, and live activity
 
 The MVP has three features: authorized members can list tasks/events with a
 deadline and priority; the space admin chooses who may edit; and connected
