@@ -1,4 +1,4 @@
-# Network layer API
+# Sequence API
 
 This document covers accounts, access, and the original transport protocol.
 For structured tasks/events, use the [MVP API](mvp.md). The original generic
@@ -13,7 +13,7 @@ go run ./cmd/server -dev -origin http://localhost:8080
 | Flag | Default | Purpose |
 | --- | --- | --- |
 | `-addr` | `127.0.0.1:8080` | Listen address |
-| `-db` | `data/timeline.db` | Embedded database file |
+| `-db` | `data/timeline.db` | Embedded database file; kept at this path to preserve existing data |
 | `-origin` | `https://localhost:8080` | Exact browser origin, without trailing slash |
 | `-dev` | `false` | Allow HTTP cookies for a localhost origin |
 | `-tls-cert`, `-tls-key` | empty | Certificate and key for direct HTTPS |
@@ -209,6 +209,8 @@ other items. Accounts, memberships, and legacy documents still use the original
 JSON state record. Unbounded history, full live snapshots, and serialized socket
 delivery remain limits for large deployments. A slow socket can hold the storage
 lock until its write deadline. Multiple server instances are not supported.
+
+The Go module path is `github.com/GODGIRII/sequence`.
 
 Library references: [bbolt transactions](https://pkg.go.dev/go.etcd.io/bbolt),
 [Gorilla WebSocket](https://pkg.go.dev/github.com/gorilla/websocket), and
